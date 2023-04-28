@@ -58,3 +58,4 @@ report.xml
 /Assets/Temp.meta
 /.sonarqube
 ProjectSettings/RiderScriptEditorPersistedState.asset
+/Assets/OneMillionScriptableObjects/Data/**
