@@ -32,6 +32,23 @@ namespace JD
 		[MenuItem("Tools/Create next 10_000 ScriptableObjects")]
 		private static void CreateNext10_000()
 		{
+			CreateNextScriptableObjects(10_000, 1_000_000);
+		}
+
+		[MenuItem("Tools/Create next 100_000 ScriptableObjects")]
+		private static void CreateNext100_000()
+		{
+			CreateNextScriptableObjects(100_000, 1_000_000);
+		}
+
+		[MenuItem("Tools/Create 1_000_000 ScriptableObjects")]
+		private static void Create1_000_000()
+		{
+			CreateScriptableObjects(0, 1_000_000);
+		}
+
+		private static void CreateNextScriptableObjects(int count, int maxTotal = int.MaxValue)
+		{
 			int depth0Start = 0;
 			string depth0 = $"{depth0Start:000000}-{(depth0Start + 10_000):000000}";
 			while(AssetDatabase.IsValidFolder($"{DataFolderPath}/{depth0}"))
@@ -40,19 +57,8 @@ namespace JD
 				depth0 = $"{depth0Start:000000}-{(depth0Start + 10_000):000000}";
 			}
 
-			CreateScriptableObjects(depth0Start, 10_000);
-		}
-
-		[MenuItem("Tools/Create 100_000 ScriptableObjects")]
-		private static void Create100_000()
-		{
-			CreateScriptableObjects(0, 100_000);
-		}
-
-		[MenuItem("Tools/Create 1_000_000 ScriptableObjects")]
-		private static void Create1_000_000()
-		{
-			CreateScriptableObjects(0, 1_000_000);
+			int createCount = Mathf.Min(depth0Start + count, maxTotal) - depth0Start;
+			CreateScriptableObjects(depth0Start, createCount);
 		}
 
 		private static void CreateScriptableObjects(int start, int count)
