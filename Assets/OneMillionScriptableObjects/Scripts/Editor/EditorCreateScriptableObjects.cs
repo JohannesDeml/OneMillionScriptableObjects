@@ -28,6 +28,7 @@ namespace JD
 	{
 		private const string DataFolderPath = "Assets/OneMillionScriptableObjects/Data";
 		private static StringBuilder stringBuilder = new StringBuilder();
+		private static int createdScriptableObjects = 0;
 
 		[MenuItem("Tools/Create next 10_000 ScriptableObjects")]
 		private static void CreateNext10_000()
@@ -41,10 +42,10 @@ namespace JD
 			CreateNextScriptableObjects(100_000, 1_000_000);
 		}
 
-		[MenuItem("Tools/Create 1_000_000 ScriptableObjects")]
+		[MenuItem("Tools/Finish creating 1_000_000 ScriptableObjects")]
 		private static void Create1_000_000()
 		{
-			CreateScriptableObjects(0, 1_000_000);
+			CreateNextScriptableObjects(1_000_000, 1_000_000);
 		}
 
 		private static void CreateNextScriptableObjects(int count, int maxTotal = int.MaxValue)
@@ -63,40 +64,42 @@ namespace JD
 
 		private static void CreateScriptableObjects(int start, int count)
 		{
+			createdScriptableObjects = 0;
 			Stopwatch sw = new Stopwatch();
-			try
+			Stopwatch batchSw = new Stopwatch();
+			bool error = false;
+			sw.Start();
+			int index = start;
+			int end = start + count;
+			while(index < end && !error) 
 			{
-				sw.Start();
-				AssetDatabase.StartAssetEditing();
-				int index = start;
-				int end = start + count;
-				while(index < end) {
+				try
+				{
+					AssetDatabase.StartAssetEditing();
+					batchSw.Restart();
 					// Create ScriptableObjects in batches of 10_000 to minimize risk that something breaks the complete result
+					// Also adding too many objects in edit mode without stopping slows down the process
 					int batchSize = Mathf.Min(end - index, 10_000);
 					if(CreateScriptableObjectsInternal(index, batchSize))
 					{
 						break;
 					}
-					AssetDatabase.SaveAssets();
-					UnityEngine.Debug.Log($"Created ScriptableObjects [{index};{index + batchSize}[");
+					UnityEngine.Debug.Log($"Created ScriptableObjects [{index};{index + batchSize}[ in {batchSw.ElapsedMilliseconds/1000f:0.00}s -> {(float)batchSw.ElapsedMilliseconds/batchSize:0.000}ms per SO");
 					index += batchSize;
 				}
-
+				catch (Exception e)
+				{
+					UnityEngine.Debug.LogException(e);
+					error = true;
+				}
+				finally
+				{
+					AssetDatabase.StopAssetEditing();
+					AssetDatabase.SaveAssets();
+				}
 			}
-			catch (Exception e)
-			{
-				UnityEngine.Debug.LogException(e);
-			}
-			finally
-			{
-				UnityEngine.Debug.Log($"Created {count} ScriptableObjects in {sw.ElapsedMilliseconds/1000f:0.00}s -> {(float)sw.ElapsedMilliseconds/count:0.000}ms per SO");
-				sw.Restart();
-				AssetDatabase.StopAssetEditing();
-				EditorUtility.ClearProgressBar();
-				AssetDatabase.SaveAssets();
-				UnityEngine.Debug.Log($"Finalized {count} ScriptableObjects in {sw.ElapsedMilliseconds/1000f:0.00}s");
-			}
-
+			UnityEngine.Debug.Log($"Created {createdScriptableObjects} ScriptableObjects in {sw.ElapsedMilliseconds/1000f:0.00}s -> {(float)sw.ElapsedMilliseconds/count:0.000}ms per SO");
+			EditorUtility.ClearProgressBar();
 		}
 
 		private static bool CreateScriptableObjectsInternal(int start, int count)
@@ -146,6 +149,7 @@ namespace JD
 				stringBuilder.Append('/').Append(i.ToString("000000")).Append(".asset");
 
 				AssetDatabase.CreateAsset(so, stringBuilder.ToString());
+				createdScriptableObjects++;
 				stringBuilder.Clear();
 			}
 			return false;
