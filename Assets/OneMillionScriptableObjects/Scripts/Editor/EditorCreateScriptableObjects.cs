@@ -22,7 +22,7 @@ namespace JD
 	/// Editor menu items to batch create ScriptableObjects
 	/// Expects folder <see cref="DataFolderPath"> to exist in project
 	/// Will create folders for every 100 ScriptableObjects
-	/// which are nested into folders of 10_000 ScriptableObjects
+	/// which are nested into folders for 10_000 ScriptableObjects
 	/// </summary>
 	public static class EditorCreateScriptableObjects
 	{
@@ -33,13 +33,13 @@ namespace JD
 		[MenuItem("Tools/Create next 10_000 ScriptableObjects")]
 		private static void CreateNext10_000()
 		{
-			CreateNextScriptableObjects(10_000, 1_000_000);
+			CreateNextScriptableObjects(10_000);
 		}
 
 		[MenuItem("Tools/Create next 100_000 ScriptableObjects")]
 		private static void CreateNext100_000()
 		{
-			CreateNextScriptableObjects(100_000, 1_000_000);
+			CreateNextScriptableObjects(100_000);
 		}
 
 		[MenuItem("Tools/Finish creating 1_000_000 ScriptableObjects")]
@@ -71,7 +71,7 @@ namespace JD
 			sw.Start();
 			int index = start;
 			int end = start + count;
-			while(index < end && !error) 
+			while(index < end && !error)
 			{
 				try
 				{
@@ -84,7 +84,7 @@ namespace JD
 					{
 						break;
 					}
-					UnityEngine.Debug.Log($"Created ScriptableObjects [{index};{index + batchSize}[ in {batchSw.ElapsedMilliseconds/1000f:0.00}s -> {(float)batchSw.ElapsedMilliseconds/batchSize:0.000}ms per SO");
+					UnityEngine.Debug.Log($"Created ScriptableObjects [{index};{index + batchSize}[ in {batchSw.ElapsedMilliseconds/1000f:0.00}s -> {(float)batchSw.ElapsedMilliseconds/batchSize:0.00}ms per SO");
 					index += batchSize;
 				}
 				catch (Exception e)
@@ -98,7 +98,7 @@ namespace JD
 					AssetDatabase.SaveAssets();
 				}
 			}
-			UnityEngine.Debug.Log($"Created {createdScriptableObjects} ScriptableObjects in {sw.ElapsedMilliseconds/1000f:0.00}s -> {(float)sw.ElapsedMilliseconds/count:0.000}ms per SO");
+			UnityEngine.Debug.Log($"Created {createdScriptableObjects} ScriptableObjects in {sw.ElapsedMilliseconds/1000f:0.00}s -> {(float)sw.ElapsedMilliseconds/createdScriptableObjects:0.00}ms per SO");
 			EditorUtility.ClearProgressBar();
 		}
 
