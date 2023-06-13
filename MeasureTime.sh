@@ -8,7 +8,8 @@ time_file="${reports_folder}/startup-times.txt"
 
 execute_unity_and_measure_time() {
     local task_name="$1"
-    local log_file="${reports_folder}/${task_name}.log"
+    local timestamp=$(date "+%Y%m%d%H%M%S")
+    local log_file="${reports_folder}/${task_name}_${timestamp}.log"
 
     start_time=$(date +%s.%N)
     "${unity_executable}" -projectPath "${project_path}" -executeMethod "${method_name}" -logFile "${log_file}" -quit
