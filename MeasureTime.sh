@@ -11,12 +11,14 @@ execute_unity_and_measure_time() {
     local timestamp=$(date "+%Y%m%d%H%M%S")
     local log_file="${reports_folder}/${task_name}_${timestamp}.log"
 
+    echo "Start measurement for ${task_name}"
     start_time=$(date +%s.%N)
     "${unity_executable}" -projectPath "${project_path}" -executeMethod "${method_name}" -logFile "${log_file}" -quit
     end_time=$(date +%s.%N)
 
     execution_time=$(echo "${end_time} - ${start_time}" | bc)
     echo "Startup time ${task_name}: ${execution_time} seconds." >> "${time_file}"
+    echo "Finished measurement for ${task_name}: ${execution_time} seconds"
 }
 
 # Create the Reports folder if it doesn't exist
@@ -26,7 +28,10 @@ fi
 
 # First run: Delete Library folder first
 # Delete Unity's Library folder
-rm -rf "${project_path}/Library"
+if [ -d "${project_path}/Library" ]; then
+    echo "Delete Library folder"
+    rm -rf "${project_path}/Library"
+fi
 execute_unity_and_measure_time "fresh_start"
 
 # Second run - Check how long it takes to open the project with the library folder already existing
